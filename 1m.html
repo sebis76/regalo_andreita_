@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Usuario</title>
+    <style>
+        /* Aplicamos un fondo degradado romántico */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #ffafbd, #ffc3a0); /* Degradado suave en tonos rosados */
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Estilo para el contenedor del formulario y del mensaje final */
+        .container {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: absolute;
+            width: 320px;
+        }
+
+        .login-container {
+            display: block; /* Mostrar formulario de inicio de sesión inicialmente */
+        }
+
+        /* Corazones decorativos */
+        .heart {
+            position: absolute;
+            font-size: 24px;
+            color: #ff6f61;
+            opacity: 0.6;
+        }
+
+        .heart.top-left {
+            top: -20px;
+            left: -20px;
+        }
+
+        .heart.top-right {
+            top: -20px;
+            right: -20px;
+        }
+
+        .heart.bottom-left {
+            bottom: -20px;
+            left: -20px;
+        }
+
+        .heart.bottom-right {
+            bottom: -20px;
+            right: -20px;
+        }
+
+        /* Pantalla de carga */
+        .loader-container {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: linear-gradient(135deg, #ffafbd, #ffc3a0); /* Degradado de fondo */
+            z-index: 3;
+        }
+
+        .loader {
+            border: 16px solid #f3f3f3;
+            border-top: 16px solid #ff6f61;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Título del formulario */
+        h2 {
+            color: #ff6f61;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        /* Estilo para los campos de entrada */
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 12px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #ff6f61;
+            outline: none;
+        }
+
+        /* Botón de inicio de sesión */
+        button {
+            padding: 12px;
+            background-color: #ff6f61;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            position: relative;
+            animation: blink 1s step-start infinite; /* Animación de parpadeo */
+        }
+
+        /* Animación de parpadeo */
+        @keyframes blink {
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        button:hover {
+            background-color: #e0554f;
+        }
+
+        /* Estilo del mensaje final */
+        .message {
+            display: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .message h1 {
+            font-size: 22px;
+            color: #ff6f61;
+            margin: 0;
+        }
+
+        .message p {
+            font-size: 20px;
+            color: #ff6f61;
+            margin: 10px 0 0;
+        }
+
+        /* Botón de continuar */
+        .continue-button {
+            margin-top: 20px;
+            padding: 12px;
+            background-color: #ff6f61;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: not-allowed;
+            width: 100%;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Estilo de carga del botón */
+        .continue-button .spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #fff;
+            border-top: 2px solid #ff6f61;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Confeti */
+        .confetti {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .confetti div {
+            position: absolute;
+            width: 5px;
+            height: 15px;
+            background-color: #ff6f61;
+            opacity: 0.8;
+            transform-origin: bottom;
+            animation: confetti 4s ease-out forwards; /* Cambiado a 4 segundos */
+        }
+
+        @keyframes confetti {
+            0% {
+                transform: translateY(0) rotate(0);
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        /* Colores del confeti */
+        .confetti div:nth-child(1) { background-color: #ff6f61; }
+        .confetti div:nth-child(2) { background-color: #ffc3a0; }
+        .confetti div:nth-child(3) { background-color: #ffafbd; }
+        .confetti div:nth-child(4) { background-color: #e0554f; }
+
+        /* Corazones flotantes */
+        .floating-hearts {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .floating-hearts .heart {
+            position: absolute;
+            font-size: 30px;
+            color: #ff6f61;
+            opacity: 0.6;
+            animation: float 10s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0);
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+            }
+        }
+
+        /* Estilo para la página en blanco */
+        .blank-page {
+            font-family: 'Dancing Script', cursive; /* Tipografía manuscrita */
+            color: #ff6f61; /* Color del texto */
+            font-size: 22px; /* Tamaño del texto */
+            white-space: pre-wrap; /* Asegura que los saltos de línea se mantengan */
+            text-align: center;
+            padding: 20px;
+            line-height: 1.5;
+            overflow: hidden; /* Para evitar desbordamiento durante la animación */
+            position: relative;
+        }
+
+        /* Tipografía manuscrita */
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap');
+
+        /* Animación de máquina de escribir con efecto de trazo */
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        .blank-page::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-right: 3px solid #ff6f61; /* Línea de escritura */
+            border-top: 1px solid transparent;
+            animation: typing 15s steps(60, end) 1s forwards, blink-caret 0.75s step-end infinite;
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+             50% { border-color: #ff6f61; }
+        }
+
+        /* Estilo del botón de canción */
+        .song-button {
+            display: block;
+            margin: 20px auto;
+            padding: 12px;
+            background-color: #ff61ff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .song-button:hover {
+            background-color: #e0554f;
+        }
+    </style>
+</head>
+<body>
+    <!-- Corazones decorativos -->
+    <div class="floating-hearts">
+        <div class="heart top-left">❤️</div>
+        <div class="heart top-right">❤️</div>
+        <div class="heart bottom-left">❤️</div>
+        <div class="heart bottom-right">❤️</div>
+    </div>
+
+    <!-- Contenedor del formulario de inicio de sesión -->
+    <div class="container login-container" id="login-container">
+        <h2>Inicia sesión</h2>
+        <!-- Campo de entrada para el nombre de usuario con texto modificado -->
+        <input type="text" id="username" placeholder="Tu nombre es?">
+        <!-- Campo de entrada para la contraseña con texto modificado -->
+        <input type="password" id="password" placeholder="Tu color favorito es?">
+        <!-- Botón para iniciar sesión -->
+        <button onclick="login()">Entrar</button>
+        <!-- Mensaje de error que se muestra si las credenciales son incorrectas -->
+        <p id="error" style="display: none;">Mor...el Usuario o la contraseña estan mal😥​. Intenta de nuevo❣️​.</p>
+    </div>
+
+    <!-- Pantalla de carga -->
+    <div class="loader-container" id="loader-container">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Contenedor del mensaje final -->
+    <div class="container message" id="message">
+        <h1>Feliz Primer Mes Amor</h1>
+        <p>Te quiero mucho mucho</p>
+        <!-- Botón para continuar -->
+        <a href="#" id="continue-button" class="continue-button" onclick="continuePage()">
+            <span class="spinner"></span> Continuar
+        </a>
+    </div>
+
+    <!-- Confeti -->
+    <div class="confetti" id="confetti"></div>
+
+    <!-- Página en blanco -->
+    <div class="container blank-page" id="blank-page">
+        Hola, mi Andreita❣️
+
+        Sé que quizá todo ha sido un poco diferente a lo habitual, empezamos nuestra historia de una manera única y especial, pero eso no lo hace menos hermoso. Al contrario, lo hace distinto, lo hace único, tal como tú lo eres para mí.
+
+        Aunque llevemos solo un mes juntos, quiero que sepas que me ha encantado conocerte. Y lo que más deseo es seguir descubriendo cada parte de ti, conocer aún más quién eres, porque contigo todo se siente perfecto.
+        
+        <!-- Botón para dedicar la canción -->
+        <a href="https://www.youtube.com/watch?v=6c_Hw0KuD6Y" class="song-button" target="_blank">Te dedico esta cancióncita🙈​🎵​</a>
+    </div>
+
+    <script>
+        // Función que se ejecuta cuando el usuario hace clic en "Entrar"
+        function login() {
+            // Obtenemos los valores del campo de usuario y contraseña
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+
+            // Convertimos el texto ingresado a minúsculas para compararlo sin tener en cuenta mayúsculas
+            var lowerUsername = username.toLowerCase();
+            var lowerPassword = password.toLowerCase();
+
+            // Verificamos si el nombre de usuario es "Andrea" y la contraseña es "mucho mucho"
+            if (lowerUsername === "" && lowerPassword === "") {
+                // Si las credenciales son correctas, ocultamos el formulario de login
+                document.getElementById("login-container").style.display = "none";
+                // Mostramos la pantalla de carga
+                document.getElementById("loader-container").style.display = "flex";
+                
+                // Después de 5 segundos, mostramos el mensaje final
+                setTimeout(function() {
+                    // Ocultamos la pantalla de carga
+                    document.getElementById("loader-container").style.display = "none";
+                    // Mostramos el mensaje de éxito
+                    document.getElementById("message").style.display = "block";
+                    // Mostrar confeti
+                    showConfetti();
+                    // Hacer que el botón de continuar muestre el texto después de 6 segundos
+                    setTimeout(function() {
+                        document.getElementById("continue-button").innerHTML = 'Continúa por aquí';
+                        document.getElementById("continue-button").style.cursor = 'pointer';
+                        document.querySelector(".spinner").style.display = 'none';
+                    }, 6000); // 6000 milisegundos = 6 segundos
+                }, 5000); // 5000 milisegundos = 5 segundos
+            } else {
+                // Si las credenciales son incorrectas, mostramos el mensaje de error
+                document.getElementById("error").style.display = "block";
+            }
+        }
+
+        // Función para mostrar confetti
+        function showConfetti() {
+            var confetti = document.getElementById("confetti");
+            for (var i = 0; i < 100; i++) {
+                var div = document.createElement("div");
+                div.style.left = Math.random() * 100 + "vw";
+                div.style.animationDelay = Math.random() * 2 + "s";
+                div.style.transform = `rotate(${Math.random() * 360}deg)`;
+                confetti.appendChild(div);
+            }
+
+            // Limpiar confeti después de 4 segundos
+            setTimeout(function() {
+                confetti.innerHTML = '';
+            }, 4000); // 4000 milisegundos = 4 segundos
+        }
+
+        // Función para continuar a la página en blanco
+        function continuePage() {
+            // Ocultamos el mensaje y mostramos la página en blanco
+            document.getElementById("message").style.display = "none";
+            document.getElementById("blank-page").style.display = "flex";
+        }
+    </script>
+
+</body>
+</html>
